@@ -122,5 +122,3 @@ reverb, compressor и analyser создаются в браузере. Подд�
 node --check app.js
 node --test tests/smoke.mjs
 ```
-# syyanie
-techno sound art 
