@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08090b" />
+    <meta
+      name="description"
+      content="Yambda Signal — браузерный инструмент, который превращает поля музыкального датасета Yambda в живую звуковую структуру."
+    />
+    <title>Yambda Signal — data sonification instrument</title>
+    <link rel="stylesheet" href="styles.css?v=2.0.3" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#signalView" aria-label="Yambda Signal">
+        <span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>YAMBDA / SIGNAL</strong><small>BEHAVIOURAL SONIFICATION UNIT</small></span>
+      </a>
+
+      <nav class="view-switch" aria-label="Режим интерфейса">
+        <button id="viewSignalButton" class="view-switch-button is-active" type="button" aria-pressed="true">
+          <span>01</span> SIGNAL
+        </button>
+        <button id="viewLabButton" class="view-switch-button" type="button" aria-pressed="false">
+          <span>02</span> LAB
+        </button>
+      </nav>
+
+      <div class="topbar-meta">
+        <div class="audio-status" aria-live="polite">
+          <i id="statusDot"></i><span id="audioState">audio asleep</span>
+          <b>·</b><span id="engineState">Web Audio</span>
+        </div>
+        <a class="source-link" href="https://huggingface.co/datasets/yandex/yambda" target="_blank" rel="noreferrer">DATASET ↗</a>
+      </div>
+    </header>
+
+    <main>
+      <div id="signalView" class="view signal-view">
+        <section class="signal-hero" aria-labelledby="pageTitle">
+          <div class="hero-copy">
+            <p class="eyebrow"><span>DATASET SCALE</span> 4.79B INTERACTIONS · SCHEMA-BASED DEMO</p>
+            <h1 id="pageTitle">Поведение<br />становится <em>звуком</em></h1>
+            <p class="hero-intro">
+              Yambda хранит не песни, а то, как их находят, слушают и оценивают.
+              Здесь поведенческий след звучит как структура — от редкого контура до плотного роя.
+            </p>
+
+            <div class="hero-actions">
+              <button class="primary-action" id="heroPlay" type="button">
+                <span class="play-mark" aria-hidden="true"></span><b id="heroPlayLabel">ПОСЛУШАТЬ ДАННЫЕ</b>
+              </button>
+              <button class="outline-action" id="randomize" type="button">НОВЫЙ СРЕЗ <span aria-hidden="true">↻</span></button>
+            </div>
+
+            <div class="signal-time" aria-label="Интерпретация времени">
+              <span class="micro-label">TIME BEHAVIOUR</span>
+              <div class="mode-switch compact-mode-switch">
+                <button class="time-mode-button is-active" type="button" data-time-mode="flow" aria-pressed="true">
+                  <b>FLOW</b><small>время следует данным</small>
+                </button>
+                <button class="time-mode-button" type="button" data-time-mode="pulse" aria-pressed="false">
+                  <b>PULSE</b><small>данные ложатся в сетку</small>
+                </button>
+              </div>
+              <p id="timeSummary" class="time-summary">FLOW · интервалы между событиями сохраняют естественное дыхание данных</p>
+            </div>
+          </div>
+
+          <div class="signal-stage">
+            <div class="signal-orbit" aria-label="Визуализация текущего аудиосигнала">
+              <canvas id="scopeCanvas"></canvas>
+              <div class="orbit-ring ring-a"></div>
+              <div class="orbit-ring ring-b"></div>
+              <div class="orbit-tick tick-a"></div>
+              <div class="orbit-tick tick-b"></div>
+              <div class="orbit-core"><span id="orbitStep">00</span><small>EVENT</small></div>
+              <span class="orbit-label label-a">ORGANIC</span>
+              <span class="orbit-label label-b">RECOMMEND</span>
+            </div>
+            <div class="stage-readout" aria-label="Состояние цикла">
+              <span><small>CYCLE</small><b id="cycleCount">001</b></span>
+              <span><small>SOURCE</small><b>YAMBDA · DEMO</b></span>
+              <span><small>OUTPUT</small><b>REALTIME</b></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="signal-controls" aria-label="Характер сигнала">
+          <div class="section-index"><span>01</span><div><p class="eyebrow">DATA LENS</p><h2>Выберите поведение</h2></div></div>
+          <div class="profile-stack">
+            <div class="profile-tabs" id="profileTabs"></div>
+            <p class="profile-note" id="profileNote"></p>
+          </div>
+
+          <div class="structure-panel">
+            <div class="structure-heading">
+              <div><p class="eyebrow">SIGNAL RESOLUTION</p><h2>Структура</h2></div>
+              <output id="structureOutput" for="structureControl">SIGNAL · 50</output>
+            </div>
+            <label class="range-field structure-field" for="structureControl">
+              <span class="sr-only">Сложность структуры</span>
+              <input id="structureControl" type="range" min="0" max="100" value="50" />
+              <span class="range-extents"><b>TRACE</b><i aria-hidden="true"></i><b>SWARM</b></span>
+            </label>
+            <div class="structure-stage-line">
+              <span>ACTIVE STAGE</span><strong id="structureStage">SIGNAL</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="score-drawer" aria-labelledby="scoreTitle">
+          <button id="scoreToggle" class="score-toggle" type="button" aria-expanded="false" aria-controls="scorePanel">
+            <span><i aria-hidden="true"></i><b id="scoreTitle">SHOW SCORE</b><small>раскрыть структуру текущего сигнала</small></span>
+            <em aria-hidden="true">＋</em>
+          </button>
+          <div id="scorePanel" class="score-panel" hidden>
+            <div class="matrix-heading">
+              <div><p class="eyebrow">EVENT SCORE</p><h2>След взаимодействий</h2></div>
+              <p>Яркость показывает силу параметра. Клик по ячейке включает или исключает событие из интерпретации.</p>
+            </div>
+            <div class="matrix-scroll">
+              <div class="sequence-grid">
+                <div class="ruler-label">FIELD / EVENT</div>
+                <div class="step-ruler" id="signalStepRuler"></div>
+                <div class="track-rows" id="signalTrackRows"></div>
+              </div>
+            </div>
+            <div class="matrix-legend">
+              <span><i class="legend-on"></i> active</span>
+              <span><i class="legend-off"></i> excluded</span>
+              <span><i class="legend-ratio"></i> value strength</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="signal-footer-note">
+          <p><span>DATA NOTE</span><b>Yambda не содержит исходное аудио.</b> Система озвучивает паттерны прослушивания, открытия и обратной связи; редкие реакции усилены, чтобы оставаться различимыми.</p>
+          <a href="https://huggingface.co/datasets/yandex/yambda" target="_blank" rel="noreferrer">READ DATASET CARD ↗</a>
+        </section>
+      </div>
+
+      <div id="labView" class="view lab-view" hidden>
+        <section class="lab-masthead" aria-labelledby="labTitle">
+          <div>
+            <p class="eyebrow"><span>ADVANCED</span> PARAMETRIC SONIFICATION WORKBENCH</p>
+            <h1 id="labTitle">Signal <em>Lab</em></h1>
+            <p>Один и тот же сигнал, раскрытый до источника, времени, голоса и пространства.</p>
+          </div>
+          <button id="labTransport" class="lab-transport primary-action" type="button">
+            <span class="play-mark" aria-hidden="true"></span><b id="labTransportLabel">PLAY SIGNAL</b>
+          </button>
+        </section>
+
+        <div class="lab-workbench">
+          <section class="lab-module source-module" aria-labelledby="sourceTitle">
+            <header class="module-heading"><span>01</span><div><p class="eyebrow">INPUT MODEL</p><h2 id="sourceTitle">Source</h2></div></header>
+            <div class="field-grid two-columns">
+              <label class="select-field" for="labProfileSelect"><span>BEHAVIOUR PROFILE</span><select id="labProfileSelect"><option value="0">Organic Drift</option><option value="1">Feed Pulse</option><option value="2">Deep Replay</option></select></label>
+              <label class="number-field" for="labSeed"><span>SLICE SEED</span><input id="labSeed" type="number" min="1" max="4294967295" value="1497451842" inputmode="numeric" /></label>
+              <label class="select-field" for="eventResolution"><span>EVENT RESOLUTION</span><select id="eventResolution"><option value="4">4 events</option><option value="8">8 events</option><option value="16" selected>16 events</option></select></label>
+              <label class="select-field" for="normalizationSelect"><span>NORMALIZATION</span><select id="normalizationSelect"><option value="robust" selected>Robust · P05–P95</option><option value="linear">Linear min–max</option><option value="local">Local percentile</option></select></label>
+            </div>
+            <label class="range-field lab-range" for="rarityControl">
+              <span><b>RARE REACTION EMPHASIS</b><output id="rarityOutput" for="rarityControl">1.8×</output></span>
+              <input id="rarityControl" type="range" min="50" max="300" step="10" value="180" />
+            </label>
+          </section>
+
+          <section class="lab-module structure-module" aria-labelledby="labStructureTitle">
+            <header class="module-heading"><span>02</span><div><p class="eyebrow">SIGNAL RESOLUTION</p><h2 id="labStructureTitle">Structure</h2></div></header>
+            <div class="lab-structure-readout">
+              <output id="labStructureOutput" for="labStructureControl">SIGNAL · 50</output>
+              <strong id="labStructureStage">SIGNAL</strong>
+            </div>
+            <label class="range-field structure-field lab-structure-field" for="labStructureControl">
+              <span class="sr-only">Сложность структуры</span>
+              <input id="labStructureControl" type="range" min="0" max="100" value="50" />
+              <span class="range-extents"><b>TRACE</b><i aria-hidden="true"></i><b>SWARM</b></span>
+            </label>
+            <div id="complexityDetails" class="complexity-details" aria-live="polite">
+              <span><small>EVENTS</small><b>16</b></span><span><small>VOICES</small><b>4</b></span><span><small>POLYPHONY</small><b>6</b></span><span><small>MICRO EVENTS</small><b>OFF</b></span>
+            </div>
+          </section>
+
+          <section class="lab-module time-module" aria-labelledby="timeTitle">
+            <header class="module-heading"><span>03</span><div><p class="eyebrow">TEMPORAL LENS</p><h2 id="timeTitle">Time</h2></div></header>
+            <div class="mode-switch lab-mode-switch" aria-label="Интерпретация времени">
+              <button class="time-mode-button is-active" type="button" data-time-mode="flow" aria-pressed="true"><b>FLOW</b><small>raw intervals</small></button>
+              <button class="time-mode-button" type="button" data-time-mode="elastic" aria-pressed="false"><b>ELASTIC</b><small>soft gravity</small></button>
+              <button class="time-mode-button" type="button" data-time-mode="pulse" aria-pressed="false"><b>PULSE</b><small>fixed grid</small></button>
+            </div>
+            <div class="field-grid two-columns time-fields">
+              <label class="range-field lab-range" for="bpmControl"><span><b>TEMPO</b><output id="bpmOutput" for="bpmControl">104 BPM</output></span><input id="bpmControl" type="range" min="66" max="156" value="104" /></label>
+              <label class="range-field lab-range" for="swingControl"><span><b>SWING</b><output id="swingOutput" for="swingControl">14%</output></span><input id="swingControl" type="range" min="0" max="45" value="14" /></label>
+              <label class="range-field lab-range" for="paceControl"><span><b>FLOW PACE</b><output id="paceOutput" for="paceControl">1.00×</output></span><input id="paceControl" type="range" min="50" max="180" value="100" /></label>
+              <label class="range-field lab-range" for="quantizeControl"><span><b>GRID GRAVITY</b><output id="quantizeOutput" for="quantizeControl">32%</output></span><input id="quantizeControl" type="range" min="0" max="100" value="32" /></label>
+              <label class="range-field lab-range" for="breathControl"><span><b>CYCLE BREATH</b><output id="breathOutput" for="breathControl">1.8×</output></span><input id="breathControl" type="range" min="50" max="300" step="10" value="180" /></label>
+              <div class="metronome-field">
+                <label class="toggle-field" for="metronomeToggle"><input id="metronomeToggle" type="checkbox" /><span aria-hidden="true"></span><b>GUIDE CLICK</b><small>служебный метроном</small></label>
+                <label class="range-field mini-range" for="metronomeLevel"><span><b>LEVEL</b><output id="metronomeOutput" for="metronomeLevel">18%</output></span><input id="metronomeLevel" type="range" min="0" max="100" value="18" /></label>
+              </div>
+            </div>
+          </section>
+
+          <section class="lab-module layers-module" aria-labelledby="layersTitle">
+            <header class="module-heading inline-module-heading">
+              <span>04</span><div><p class="eyebrow">SEMANTIC VOICES</p><h2 id="layersTitle">Layers / Matrix</h2></div>
+              <p>Слои — не инструменты, а разные типы поведения в данных.</p>
+            </header>
+            <div id="layerControls" class="layer-controls" aria-label="Управление слоями">
+              <article class="layer-strip" data-layer="depth"><i class="tone-cyan"></i><div><b>LISTEN DEPTH</b><small>played_ratio_pct</small></div><span>KICK / BREATH</span><button type="button" data-layer-action="mute">MUTE</button><button type="button" data-layer-action="solo">SOLO</button></article>
+              <article class="layer-strip" data-layer="length"><i class="tone-lime"></i><div><b>TRACK LENGTH</b><small>track_length_seconds</small></div><span>BASS / DRONE</span><button type="button" data-layer-action="mute">MUTE</button><button type="button" data-layer-action="solo">SOLO</button></article>
+              <article class="layer-strip" data-layer="discovery"><i class="tone-pink"></i><div><b>DISCOVERY</b><small>is_organic</small></div><span>TONE / TEXTURE</span><button type="button" data-layer-action="mute">MUTE</button><button type="button" data-layer-action="solo">SOLO</button></article>
+              <article class="layer-strip" data-layer="feedback"><i class="tone-orange"></i><div><b>FEEDBACK</b><small>like · dislike · skip</small></div><span>PLUCK / NOISE</span><button type="button" data-layer-action="mute">MUTE</button><button type="button" data-layer-action="solo">SOLO</button></article>
+            </div>
+            <div class="lab-matrix-shell">
+              <div class="matrix-scroll">
+                <div class="sequence-grid lab-sequence-grid">
+                  <div class="ruler-label">FIELD / EVENT</div>
+                  <div class="step-ruler" id="labStepRuler"></div>
+                  <div class="track-rows" id="labTrackRows"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="lab-module inspector-module" aria-labelledby="inspectorTitle">
+            <header class="module-heading"><span>05</span><div><p class="eyebrow">DATA TRACE</p><h2 id="inspectorTitle">Event Inspector</h2></div></header>
+            <div id="eventInspector" class="event-inspector" aria-live="polite">
+              <div class="inspector-empty">
+                <span>NO EVENT SELECTED</span>
+                <p>Выберите ячейку в матрице, чтобы увидеть путь от сырого значения до параметра звука.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="lab-module voice-module" aria-labelledby="voiceTitle">
+            <header class="module-heading"><span>06</span><div><p class="eyebrow">SYNTHESIS</p><h2 id="voiceTitle">Voice</h2></div></header>
+            <div class="field-grid two-columns">
+              <label class="select-field" for="rootControl"><span>ROOT / SCALE</span><select id="rootControl"><option value="38:minorPentatonic" selected>D · minor pentatonic</option><option value="45:dorian">A · dorian</option><option value="41:majorPentatonic">F · major pentatonic</option><option value="36:chromatic">C · chromatic</option></select></label>
+              <label class="range-field lab-range" for="bassCutoffControl"><span><b>BASS CUTOFF</b><output id="bassCutoffOutput" for="bassCutoffControl">820 HZ</output></span><input id="bassCutoffControl" type="range" min="120" max="3200" value="820" /></label>
+              <label class="range-field lab-range" for="releaseControl"><span><b>RELEASE</b><output id="releaseOutput" for="releaseControl">640 MS</output></span><input id="releaseControl" type="range" min="80" max="2400" value="640" /></label>
+              <label class="range-field lab-range" for="warmthControl"><span><b>ORGANIC WARMTH</b><output id="warmthOutput" for="warmthControl">72%</output></span><input id="warmthControl" type="range" min="0" max="100" value="72" /></label>
+              <label class="range-field lab-range" for="fmIndexControl"><span><b>RECOMMEND FM</b><output id="fmIndexOutput" for="fmIndexControl">38%</output></span><input id="fmIndexControl" type="range" min="0" max="100" value="38" /></label>
+            </div>
+          </section>
+
+          <section class="lab-module mix-module" aria-labelledby="mixTitle">
+            <header class="module-heading"><span>07</span><div><p class="eyebrow">OUTPUT FIELD</p><h2 id="mixTitle">Space / Mix</h2></div></header>
+            <div class="field-grid two-columns">
+              <label class="range-field lab-range" for="delayControl"><span><b>DELAY</b><output id="delayOutput" for="delayControl">24%</output></span><input id="delayControl" type="range" min="0" max="100" value="24" /></label>
+              <label class="range-field lab-range" for="feedbackControl"><span><b>FEEDBACK</b><output id="feedbackOutput" for="feedbackControl">31%</output></span><input id="feedbackControl" type="range" min="0" max="80" value="31" /></label>
+              <label class="range-field lab-range" for="reverbControl"><span><b>REVERB</b><output id="reverbOutput" for="reverbControl">42%</output></span><input id="reverbControl" type="range" min="0" max="100" value="42" /></label>
+              <label class="range-field lab-range" for="volumeControl"><span><b>MASTER</b><output id="volumeOutput" for="volumeControl">68%</output></span><input id="volumeControl" type="range" min="0" max="100" value="68" /></label>
+            </div>
+          </section>
+
+          <section class="lab-module mapping-module" aria-labelledby="mappingTitle">
+            <header class="module-heading"><span>08</span><div><p class="eyebrow">SEMANTIC ROUTING</p><h2 id="mappingTitle">Mapping</h2></div></header>
+            <div class="mapping-list">
+              <div><i class="tone-cyan"></i><span><b>LISTEN DEPTH</b><small id="listenMappingText">played_ratio_pct → breath envelope · filter</small></span><strong id="listenMappingTarget">BREATH</strong></div>
+              <div><i class="tone-lime"></i><span><b>TRACK LENGTH</b><small>track_length_seconds → scale degree · drone</small></span><strong>BASS</strong></div>
+              <div><i class="tone-pink"></i><span><b>DISCOVERY</b><small>is_organic → spectral crossfade</small></span><strong>TONE</strong></div>
+              <div><i class="tone-orange"></i><span><b>FEEDBACK</b><small>like · dislike · early skip → landmarks</small></span><strong>SIGNAL</strong></div>
+              <div><i class="tone-violet"></i><span><b>EVENT GAP</b><small>timestamp_delta_5s → interval · negative space</small></span><strong>TIME</strong></div>
+            </div>
+          </section>
+        </div>
+
+        <footer class="lab-footer">
+          <div><span>PARAMETER STATE</span><b>LIVE · LOCAL</b><small>Настройки хранятся только в этом браузере</small><output id="presetStatus" aria-live="polite"></output></div>
+          <div class="lab-footer-actions">
+            <button id="savePreset" class="outline-action" type="button">SAVE PRESET</button>
+            <button id="loadPreset" class="outline-action" type="button">LOAD PRESET</button>
+            <button id="resetAll" class="danger-action" type="button">RESET ALL</button>
+          </div>
+        </footer>
+      </div>
+    </main>
+
+    <div class="wake-layer" id="wakeLayer" role="dialog" aria-modal="true" aria-labelledby="wakeTitle">
+      <div class="wake-card">
+        <span class="wake-index">Y / 02</span>
+        <p class="eyebrow">AUDIO PERMISSION</p>
+        <h2 id="wakeTitle">Разбудить<br />сигнал</h2>
+        <p>Браузеру нужен ваш жест, чтобы запустить аудиодвижок. Лучше слушать в наушниках.</p>
+        <button id="wakeButton" type="button">ЗАПУСТИТЬ ЗВУК <span aria-hidden="true">▶</span></button>
+        <small>Web Audio API · Chrome / WebKit</small>
+      </div>
+    </div>
+
+    <script src="yambda-data.js?v=2.0.3"></script>
+    <script src="app.js?v=2.0.3"></script>
+  </body>
+</html>
