@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3f2ee" />
+    <meta name="description" content="Wordstat / Seq — живой инструмент, превращающий динамику поисковых фраз в музыку." />
+    <title>Wordstat / Seq — поисковый спрос как музыка</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Wordstat Seq, наверх">
+        <span class="brand-mark" aria-hidden="true">Я</span>
+        <span><b>WORDSTAT</b><i>/ SEQ 02</i></span>
+      </a>
+
+      <nav class="view-switch" aria-label="Режим интерфейса">
+        <button class="view-button is-active" id="basicViewButton" type="button" data-view="basic">СЛУШАТЬ</button>
+        <button class="view-button" id="advancedViewButton" type="button" data-view="advanced">ЛАБОРАТОРИЯ</button>
+      </nav>
+
+      <div class="header-end">
+        <div class="engine-state" aria-live="polite"><span id="engineDot"></span><b id="engineText">аудио выключено</b></div>
+        <a class="wordstat-link" href="https://wordstat.yandex.ru/" target="_blank" rel="noreferrer">Вордстат <span>↗</span></a>
+      </div>
+    </header>
+
+    <main id="top">
+      <div id="basicView">
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="kicker">ЖИВАЯ СИСТЕМА / 16 ПЕРИОДОВ / 14 ФРАЗ</p>
+            <h1>Что люди ищут,<br /><em>тем музыка живёт.</em></h1>
+            <p class="hero-text">Человек выбирает слова. Общественный спрос даёт им энергию. Алгоритм предлагает связи — от ясного сигнала до открытой игры.</p>
+            <div class="hero-actions">
+              <button class="primary-button" id="heroPlay" type="button"><span class="play-icon" aria-hidden="true"></span><b id="heroPlayLabel">ПОСЛУШАТЬ ПОЛЕ</b></button>
+              <button class="secondary-button" id="surpriseButton" type="button">ДРУГАЯ ВЕРСИЯ <span>↻</span></button>
+            </div>
+          </div>
+
+          <div class="trend-card" aria-label="График общей динамики выбранных фраз">
+            <div class="trend-head">
+              <div><span>ОБЩАЯ ДИНАМИКА</span><b id="trendDirection">+12,4%</b></div>
+              <div class="live-pill"><i></i> DATA SIGNAL</div>
+            </div>
+            <canvas id="trendCanvas"></canvas>
+            <div class="trend-axis"><span>АПР</span><span>МАЙ</span><span>ИЮН</span><span>ИЮЛ</span></div>
+            <div class="playhead-readout"><span id="weekLabel">ПЕРИОД 01</span><b id="pulseCount">18 420</b><small>условных запросов</small></div>
+          </div>
+        </section>
+
+        <aside class="data-notice">
+          <span id="dataBadge">ДЕМО-ДАННЫЕ</span>
+          <p id="dataNoticeText">Встроенные значения — музыкальная модель, а не статистика Яндекса. Загрузите CSV-экспорт, чтобы озвучить свои данные.</p>
+          <label class="upload-button" for="csvInput">ЗАГРУЗИТЬ CSV</label>
+          <input id="csvInput" type="file" accept=".csv,text/csv" />
+        </aside>
+
+        <section class="instrument" aria-labelledby="instrumentTitle">
+          <div class="instrument-heading">
+            <div>
+              <p class="section-index">01 / ЖИВОЙ ИНСТРУМЕНТ</p>
+              <h2 id="instrumentTitle">Выберите способ существования музыки</h2>
+            </div>
+            <div class="scene-tabs" id="sceneTabs" role="group" aria-label="Музыкальные сцены"></div>
+          </div>
+
+          <div class="macro-layout">
+            <article class="macro-card structure-card">
+              <div class="macro-head">
+                <div><span>СТРУКТУРА</span><b id="structureOut">ПАТТЕРН</b></div>
+                <small id="structureIndex">03 / 05</small>
+              </div>
+              <input id="structureControl" class="structure-range" type="range" min="0" max="4" step="1" value="2" aria-label="Сложность структуры" />
+              <div class="structure-scale" aria-hidden="true"><span>СИГНАЛ</span><span>ПРИСОЕДИНЕНИЕ</span><span>ПАТТЕРН</span><span>СОТВОРЧЕСТВО</span><span>ОТКРЫТАЯ ИГРА</span></div>
+              <p id="structureSummary">8 фраз → 6 голосов · умеренная вариативность</p>
+            </article>
+
+            <article class="macro-card time-card">
+              <div class="macro-head"><div><span>ОРГАНИЗАЦИЯ ВРЕМЕНИ</span><b id="timeModeOut">СЕТКА</b></div><small id="cycleDurationOut">2,3 SEC</small></div>
+              <div class="time-tabs" id="timeModeTabs" role="group" aria-label="Организация музыкального времени">
+                <button type="button" data-time-mode="grid" class="is-active"><b>СЕТКА</b><small>общий пульс</small></button>
+                <button type="button" data-time-mode="elastic"><b>ДЫХАНИЕ</b><small>эластичный цикл</small></button>
+                <button type="button" data-time-mode="free"><b>ПОЛЕ</b><small>независимые голоса</small></button>
+              </div>
+              <p id="timeDescription">16 периодов встречаются в общем ритме. Сетка видна, метроном не звучит.</p>
+            </article>
+          </div>
+
+          <div class="experience" id="experience">
+            <div class="experience-toolbar">
+              <div><span>СЕЙЧАС ЗВУЧИТ</span><b id="nowPlayingLabel">поле ожидает первого жеста</b></div>
+              <div class="experience-actions">
+                <button id="phraseToggle" type="button" aria-expanded="false" aria-controls="phrasePanel"><b id="activeCount">8</b> ФРАЗ</button>
+                <button class="transport-compact" id="transportButton" type="button"><span class="play-icon" aria-hidden="true"></span><b id="transportLabel">PLAY</b></button>
+              </div>
+            </div>
+            <canvas id="fieldCanvas" aria-label="Живая визуализация музыкального поля"></canvas>
+            <div class="field-legend" id="fieldLegend"><span><i></i> размер = энергия спроса</span><span><i></i> линия = музыкальный ответ</span><span id="fieldModeHint">общая вертикаль = текущий период</span></div>
+          </div>
+
+          <div class="phrase-panel" id="phrasePanel" hidden>
+            <div class="query-toolbar">
+              <label class="query-search"><span aria-hidden="true">⌕</span><input id="termSearch" type="search" placeholder="Найти фразу на доске" autocomplete="off" /></label>
+              <button id="closePhrasePanel" type="button">ЗАКРЫТЬ ×</button>
+            </div>
+            <div class="terms" id="termList" aria-label="Фразы из брейншторма"></div>
+          </div>
+        </section>
+
+        <section class="sequencer mode-grid-section" id="gridSection" aria-labelledby="sequencerTitle">
+          <div class="section-title-row">
+            <div><p class="section-index">02 / АНАЛИТИЧЕСКИЙ СЛОЙ</p><h2 id="sequencerTitle">Откуда появился звук</h2></div>
+            <div class="cycle-readout"><span>CYCLE</span><b id="cycleCount">001</b></div>
+          </div>
+          <p class="section-lede">Сетка остаётся прозрачным способом проверить связь данных и события. В «Дыхании» и «Поле» она показывает источник, но не диктует музыкальное время.</p>
+          <div class="grid-scroll">
+            <div class="sequence-grid">
+              <div class="grid-corner">ФРАЗА / ПЕРИОД</div>
+              <div class="week-ruler" id="weekRuler"></div>
+              <div class="track-list" id="trackList"></div>
+            </div>
+          </div>
+          <div class="grid-help"><span><i class="dot-on"></i> размер = число запросов</span><span><i class="dot-step"></i> клик меняет событие в режиме «Сетка»</span><span><kbd>Shift</kbd> + клик закрепляет период</span></div>
+        </section>
+
+        <section class="logic-note v2-logic">
+          <div><span>СМЫСЛОВАЯ ЛОГИКА</span><h2>Сигнал присоединяется.<br />Паттерн становится диалогом.<br /><em>Диалог открывается игре.</em></h2></div>
+          <div class="logic-steps">
+            <p><b>ЧЕЛОВЕК</b> выбирает слова и может вмешаться в рисунок.</p>
+            <p><b>ДАННЫЕ</b> определяют энергию, направление и тембр.</p>
+            <p><b>МАШИНА</b> распределяет время и предлагает связи.</p>
+          </div>
+        </section>
+      </div>
+
+      <section class="advanced-view" id="advancedView" hidden aria-labelledby="advancedTitle">
+        <header class="advanced-hero">
+          <div><p class="section-index">ADVANCED / ОБЪЯСНИМАЯ СОНФИКАЦИЯ</p><h1 id="advancedTitle">Лаборатория</h1><p>Все преобразования открыты: от числа запросов до конкретной ноты и времени события.</p></div>
+          <div class="advanced-hero-actions"><button class="primary-button" id="advancedTransportButton" type="button"><span class="play-icon"></span><b id="advancedTransportLabel">PLAY ENGINE</b></button><button class="secondary-button" id="exportSettingsButton" type="button">ЭКСПОРТ JSON</button></div>
+        </header>
+
+        <div class="advanced-layout">
+          <aside class="advanced-sidebar">
+            <nav id="advancedNav" aria-label="Разделы лаборатории"></nav>
+            <div class="advanced-status"><span>ACTIVE PATCH</span><b id="advancedPatchName">ПАТТЕРН / СЕТКА</b><p id="advancedStatusText">8 фраз · 6 голосов · seed 92831</p><button id="relinkButton" type="button">СВЯЗАТЬ ВСЁ С ПРОФИЛЕМ</button></div>
+          </aside>
+
+          <div class="advanced-controls" id="advancedControls"></div>
+
+          <aside class="event-inspector" aria-live="polite">
+            <div class="inspector-head"><span>LIVE EVENT</span><i id="inspectorDot"></i></div>
+            <h2 id="inspectorTerm">ожидание события</h2>
+            <p id="inspectorPeriod">—</p>
+            <dl>
+              <div><dt>COUNT → VELOCITY</dt><dd id="inspectorVelocity">—</dd></div>
+              <div><dt>Δ → PITCH</dt><dd id="inspectorPitch">—</dd></div>
+              <div><dt>AFFINITY → FILTER</dt><dd id="inspectorFilter">—</dd></div>
+              <div><dt>TIME</dt><dd id="inspectorTime">—</dd></div>
+              <div><dt>SOURCE</dt><dd id="inspectorSource">—</dd></div>
+            </dl>
+            <div class="inspector-curve"><canvas id="inspectorCanvas"></canvas></div>
+          </aside>
+        </div>
+
+        <section class="advanced-mixer">
+          <div class="section-title-row"><div><p class="section-index">PER TRACK</p><h2>Голоса и пространство</h2></div><span id="mixerCount">8 CHANNELS</span></div>
+          <div id="mixerList" class="mixer-list"></div>
+        </section>
+
+        <section class="advanced-diagnostics">
+          <span>ENGINE DIAGNOSTICS</span>
+          <div><b>25 ms</b><small>scheduler interval</small></div><div><b>120 ms</b><small>lookahead</small></div><div><b id="eventCountDiagnostic">0</b><small>events / cycle</small></div><div><b id="responseCountDiagnostic">0</b><small>voice responses</small></div><div><b id="durationDiagnostic">0 sec</b><small>cycle duration</small></div><div><b id="polyphonyDiagnostic">0 / 0</b><small>polyphony budget</small></div>
+        </section>
+      </section>
+    </main>
+
+    <footer><span>WORDSTAT / SEQ 02 · LOCAL WEB AUDIO</span><span>Данные и настройки остаются в этом браузере</span></footer>
+
+    <div class="wake-layer" id="wakeLayer" role="dialog" aria-modal="true" aria-labelledby="wakeTitle">
+      <div class="wake-card">
+        <p class="section-index">AUDIO PERMISSION</p>
+        <h2 id="wakeTitle">Разбудить<br />живое поле</h2>
+        <p>Браузер запускает Web Audio только после вашего действия. Лучше слушать в наушниках.</p>
+        <button id="wakeButton" type="button">ЗАПУСТИТЬ ЗВУК <span>▶</span></button>
+        <small>Web Audio API · Chrome / Safari / Firefox</small>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="wordstat-data.js"></script>
+    <script src="parameter-schema.js"></script>
+    <script src="event-engine.js"></script>
+    <script src="app-v2.js"></script>
+  </body>
+</html>
