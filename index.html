@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Живая коллективная память — экспериментальный секвенсор, где человеческий жест встречается с управляемой случайностью."
+    />
+    <title>Живая память — коллективный секвенсор</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-noise" aria-hidden="true"></div>
+
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Живая память, в начало">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span>
+            <strong>ЖИВАЯ ПАМЯТЬ</strong>
+            <small>collective instrument · 001</small>
+          </span>
+        </a>
+
+        <nav class="view-switch" aria-label="Поверхность инструмента">
+          <button id="viewMeeting" class="is-active" type="button" data-view="meeting" aria-pressed="true">
+            Встреча
+          </button>
+          <button id="viewAnatomy" type="button" data-view="anatomy" aria-pressed="false">
+            Анатомия
+          </button>
+        </nav>
+
+        <div class="system-state" aria-live="polite">
+          <span class="state-dot" id="stateDot"></span>
+          <span id="audioState">звук спит</span>
+          <span class="state-separator" aria-hidden="true"></span>
+          <span id="sessionSeed">seed 7F2A</span>
+        </div>
+      </header>
+
+      <section class="organism meeting-surface" aria-labelledby="pageTitle">
+        <canvas
+          id="memoryCanvas"
+          aria-label="Живая визуализация текущего паттерна и звуковой волны"
+        ></canvas>
+        <div class="organism-copy">
+          <p class="eyebrow">звуковой организм / открытая сессия</p>
+          <h1 id="pageTitle">Память отвечает<br />на ваш жест</h1>
+          <p class="organism-note" id="organismNote">
+            В рисунке уже живут четыре чужих следа. Добавьте свой — машина
+            отклонит его, но не сотрёт.
+          </p>
+        </div>
+        <div class="organism-index" aria-hidden="true">
+          <span>16</span>
+          <small>узлов цикла</small>
+        </div>
+      </section>
+
+      <div class="workspace meeting-surface">
+        <aside class="panel memory-panel" aria-labelledby="memoryTitle">
+          <div class="panel-heading">
+            <span class="section-index">01</span>
+            <div>
+              <p class="eyebrow">архив участников</p>
+              <h2 id="memoryTitle">Следы памяти</h2>
+            </div>
+          </div>
+
+          <p class="panel-intro">
+            Каждый след хранит ритм и тембр. Прослушайте его или вплетите между
+            источниками A и B.
+          </p>
+
+          <div class="memory-list" id="memoryList"></div>
+
+          <div class="memory-pair" aria-label="Источники морфинга">
+            <label>
+              <span>источник A</span>
+              <select id="memoryA"></select>
+            </label>
+            <div class="pair-thread" aria-hidden="true"><i></i></div>
+            <label>
+              <span>источник B</span>
+              <select id="memoryB"></select>
+            </label>
+          </div>
+
+          <button class="text-button save-memory" id="saveMemory" type="button">
+            <span class="button-symbol" aria-hidden="true">＋</span>
+            Оставить свой след
+          </button>
+        </aside>
+
+        <section class="panel sequence-panel" aria-labelledby="sequenceTitle">
+          <div class="panel-heading sequence-heading">
+            <span class="section-index">02</span>
+            <div>
+              <p class="eyebrow">ваш жест</p>
+              <h2 id="sequenceTitle">Полотно цикла</h2>
+            </div>
+            <div class="cycle-readout" aria-live="polite">
+              <strong id="cycleCount">01</strong>
+              <span>цикл</span>
+            </div>
+          </div>
+
+          <div class="time-contract" aria-label="Согласование времени">
+            <div>
+              <p class="eyebrow">согласование времени</p>
+              <div class="mode-buttons">
+                <button type="button" data-time-mode="grid" aria-pressed="false">Сетка</button>
+                <button type="button" data-time-mode="breath" aria-pressed="true">Дыхание</button>
+                <button type="button" data-time-mode="orbits" aria-pressed="false">Орбиты</button>
+              </div>
+            </div>
+            <button class="pulse-guide" id="pulseGuide" type="button" aria-pressed="false">
+              <span aria-hidden="true">◌</span>
+              Прислушаться к пульсу
+            </button>
+          </div>
+
+          <div class="sequence-scroll">
+            <div class="sequence-grid" id="sequenceGrid">
+              <div class="ruler-spacer" aria-hidden="true"></div>
+              <div class="beat-ruler" id="beatRuler" aria-hidden="true"></div>
+              <div id="trackRows" class="track-rows"></div>
+            </div>
+          </div>
+
+          <div class="sequence-legend">
+            <span><i class="legend-human"></i>ваш шаг</span>
+            <span><i class="legend-memory"></i>чужой след</span>
+            <span><i class="legend-lock"></i>Shift + клик — закрепить</span>
+          </div>
+        </section>
+
+        <aside class="panel coauthor-panel" aria-labelledby="coauthorTitle">
+          <div class="panel-heading">
+            <span class="section-index">03</span>
+            <div>
+              <p class="eyebrow">ответ технологии</p>
+              <h2 id="coauthorTitle">Соавтор</h2>
+            </div>
+          </div>
+
+          <div class="branching-control">
+            <label for="branching">
+              <span>
+                <b>Разветвление</b>
+                <output id="branchingOut">Диалог</output>
+              </span>
+              <input id="branching" type="range" min="0" max="3" step="1" value="1" />
+            </label>
+            <div class="branching-labels" aria-hidden="true">
+              <span>Нить</span><span>Диалог</span><span>Сплетение</span><span>Организм</span>
+            </div>
+            <p id="branchingNote">Пульс и След делят один цикл и слушают две памяти.</p>
+          </div>
+
+          <div
+            class="agency-pad"
+            id="agencyPad"
+            role="application"
+            aria-label="Поле соавторства. Стрелки влево и вправо меняют мутацию, вверх и вниз — дрейф."
+            tabindex="0"
+          >
+            <span class="pad-label pad-left">след</span>
+            <span class="pad-label pad-right">мутация</span>
+            <span class="pad-label pad-top">дрейф</span>
+            <span class="pad-label pad-bottom">порядок</span>
+            <div class="pad-thread thread-a" aria-hidden="true"></div>
+            <div class="pad-thread thread-b" aria-hidden="true"></div>
+            <div class="pad-orbit" aria-hidden="true"></div>
+            <div class="pad-cursor" id="padCursor" aria-hidden="true">
+              <i></i>
+            </div>
+          </div>
+          <p class="pad-readout">
+            машина получает <strong id="agencyValue">38%</strong> пространства
+            и <strong id="driftValue">24%</strong> свободы
+          </p>
+
+          <div class="macro-controls">
+            <label class="macro">
+              <span><b>Морфинг памяти</b><output id="morphOut">35%</output></span>
+              <input id="morph" type="range" min="0" max="100" value="35" />
+            </label>
+            <label class="macro">
+              <span><b>Аналоговое тепло</b><output id="warmthOut">58%</output></span>
+              <input id="warmth" type="range" min="0" max="100" value="58" />
+            </label>
+            <label class="macro">
+              <span><b>Эхо следов</b><output id="echoOut">32%</output></span>
+              <input id="echo" type="range" min="0" max="100" value="32" />
+            </label>
+            <label class="macro">
+              <span><b>Плотность</b><output id="densityOut">64%</output></span>
+              <input id="density" type="range" min="20" max="100" value="64" />
+            </label>
+          </div>
+
+          <div class="coauthor-actions">
+            <button class="primary-button" id="mutate" type="button">
+              <span aria-hidden="true">✦</span>
+              Впустить случайность
+            </button>
+            <button class="icon-button" id="undo" type="button" disabled>
+              <span aria-hidden="true">↶</span>
+              <span>Вернуть жест</span>
+            </button>
+          </div>
+
+          <div class="machine-log" aria-live="polite">
+            <p class="eyebrow">последний ответ</p>
+            <p id="machineLog">машина слушает рисунок и ждёт вашего жеста</p>
+          </div>
+        </aside>
+      </div>
+
+      <section class="anatomy-view" id="anatomyView" hidden aria-labelledby="anatomyTitle">
+        <header class="anatomy-hero">
+          <div>
+            <p class="eyebrow">рентген живой сессии</p>
+            <h1 id="anatomyTitle">Анатомия памяти</h1>
+            <p>
+              Здесь виден договор об авторстве: что закрепили вы, что пришло из памяти
+              и где машина получила свободу отклониться.
+            </p>
+          </div>
+          <div class="anatomy-live">
+            <span><i class="origin-human"></i>человек</span>
+            <span><i class="origin-memory"></i>память</span>
+            <span><i class="origin-machine"></i>машина</span>
+            <span><i class="origin-result"></i>результат</span>
+          </div>
+        </header>
+
+        <section class="influence-strip" aria-labelledby="influenceTitle">
+          <div class="influence-copy">
+            <p class="eyebrow" id="influenceTitle">влияние в последнем цикле</p>
+            <strong id="influenceSummary">сессия ещё не звучала</strong>
+          </div>
+          <div class="influence-meter" role="img" aria-label="Соотношение человеческих, унаследованных и машинных событий">
+            <i id="humanInfluence"></i>
+            <i id="memoryInfluence"></i>
+            <i id="machineInfluence"></i>
+          </div>
+          <div class="influence-values">
+            <span>вы <b id="humanInfluenceOut">0%</b></span>
+            <span>память <b id="memoryInfluenceOut">0%</b></span>
+            <span>ответ <b id="machineInfluenceOut">0%</b></span>
+          </div>
+        </section>
+
+        <div class="anatomy-columns">
+          <section class="anatomy-section inheritance-section" aria-labelledby="inheritanceTitle">
+            <div class="anatomy-heading">
+              <span>01</span>
+              <div>
+                <p class="eyebrow">родословная тембра</p>
+                <h2 id="inheritanceTitle">Наследование</h2>
+              </div>
+            </div>
+            <div class="memory-source-summary">
+              <div><small>A</small><strong id="anatomyMemoryA">Импульс</strong></div>
+              <span id="anatomyMorph">35%</span>
+              <div><small>B</small><strong id="anatomyMemoryB">Дыхание</strong></div>
+            </div>
+            <div class="anatomy-memory-selects">
+              <label><span>Источник A</span><select id="advMemoryA"></select></label>
+              <label><span>Источник B</span><select id="advMemoryB"></select></label>
+            </div>
+            <div class="parameter-table-wrap">
+              <table class="parameter-table">
+                <thead>
+                  <tr><th>Параметр</th><th>A</th><th>B</th><th>Слышно</th></tr>
+                </thead>
+                <tbody id="memoryParameterRows"></tbody>
+              </table>
+            </div>
+            <div class="advanced-ranges anatomy-macros">
+              <label>
+                <span><b>Морфинг памяти</b><output id="advMorphOut">35%</output></span>
+                <input id="advMorph" type="range" min="0" max="100" value="35" />
+              </label>
+              <label>
+                <span><b>Аналоговое тепло</b><output id="advWarmthOut">58%</output></span>
+                <input id="advWarmth" type="range" min="0" max="100" value="58" />
+              </label>
+              <label>
+                <span><b>Эхо следов</b><output id="advEchoOut">32%</output></span>
+                <input id="advEcho" type="range" min="0" max="100" value="32" />
+              </label>
+              <label>
+                <span><b>Плотность событий</b><output id="advDensityOut">64%</output></span>
+                <input id="advDensity" type="range" min="20" max="100" value="64" />
+              </label>
+            </div>
+            <p class="anatomy-footnote">
+              Итог интерполируется между A и B; машинный дрейф применяется только
+              внутри разрешённого коридора.
+            </p>
+          </section>
+
+          <section class="anatomy-section time-section" aria-labelledby="timeTitle">
+            <div class="anatomy-heading">
+              <span>02</span>
+              <div>
+                <p class="eyebrow">форма возвращения</p>
+                <h2 id="timeTitle">Время</h2>
+              </div>
+            </div>
+            <div class="mode-buttons anatomy-modes">
+              <button type="button" data-time-mode="grid" aria-pressed="false">Сетка</button>
+              <button type="button" data-time-mode="breath" aria-pressed="true">Дыхание</button>
+              <button type="button" data-time-mode="orbits" aria-pressed="false">Орбиты</button>
+            </div>
+            <div class="advanced-ranges">
+              <label>
+                <span><b>Притяжение к сетке</b><output id="advQuantizeOut">42%</output></span>
+                <input id="advQuantize" type="range" min="0" max="100" value="42" />
+              </label>
+              <label>
+                <span><b>Глубина дыхания</b><output id="advBreathOut">48%</output></span>
+                <input id="advBreath" type="range" min="0" max="100" value="48" />
+              </label>
+              <label>
+                <span><b>Дрейф длины цикла</b><output id="advCycleDriftOut">6%</output></span>
+                <input id="advCycleDrift" type="range" min="0" max="20" value="6" />
+              </label>
+              <label>
+                <span><b>Взаимное притяжение орбит</b><output id="advAttractionOut">36%</output></span>
+                <input id="advAttraction" type="range" min="0" max="100" value="36" />
+              </label>
+            </div>
+            <div class="orbit-ratios" id="orbitRatios" aria-label="Периоды голосов"></div>
+          </section>
+
+          <section class="anatomy-section territory-section" aria-labelledby="territoryTitle">
+            <div class="anatomy-heading">
+              <span>03</span>
+              <div>
+                <p class="eyebrow">границы свободы</p>
+                <h2 id="territoryTitle">Территория машины</h2>
+              </div>
+            </div>
+            <div class="advanced-ranges">
+              <label>
+                <span><b>Пространство соавторства</b><output id="advAgencyOut">38%</output></span>
+                <input id="advAgency" type="range" min="0" max="100" value="38" />
+              </label>
+              <label>
+                <span><b>Свобода дрейфа</b><output id="advDriftOut">24%</output></span>
+                <input id="advDrift" type="range" min="0" max="100" value="24" />
+              </label>
+              <label>
+                <span><b>Отклонение времени</b><output id="advTimingOut">±18 мс</output></span>
+                <input id="advTiming" type="range" min="0" max="40" value="18" />
+              </label>
+              <label>
+                <span><b>Отклонение velocity</b><output id="advVelocityOut">±12%</output></span>
+                <input id="advVelocity" type="range" min="0" max="30" value="12" />
+              </label>
+              <label>
+                <span><b>Аналоговый detune</b><output id="advDetuneOut">±12 ct</output></span>
+                <input id="advDetune" type="range" min="0" max="30" value="12" />
+              </label>
+              <label>
+                <span><b>Вероятность ratchet</b><output id="advRatchetOut">11%</output></span>
+                <input id="advRatchet" type="range" min="0" max="35" value="11" />
+              </label>
+              <label>
+                <span><b>Проявление памяти</b><output id="advMemoryChanceOut">62%</output></span>
+                <input id="advMemoryChance" type="range" min="0" max="100" value="62" />
+              </label>
+              <label>
+                <span><b>Узлов за одну мутацию</b><output id="advMutationNodesOut">5</output></span>
+                <input id="advMutationNodes" type="range" min="1" max="12" value="5" />
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <section class="anatomy-section structure-section" aria-labelledby="structureTitle">
+          <div class="anatomy-heading">
+            <span>04</span>
+            <div>
+              <p class="eyebrow">сворачивание и раскрытие</p>
+              <h2 id="structureTitle">Структура</h2>
+            </div>
+            <strong id="structureState">Диалог</strong>
+          </div>
+          <div class="profile-buttons" aria-label="Профиль структуры">
+            <button type="button" data-profile="0">Нить</button>
+            <button type="button" data-profile="1" class="is-active">Диалог</button>
+            <button type="button" data-profile="2">Сплетение</button>
+            <button type="button" data-profile="3">Организм</button>
+          </div>
+          <div class="structure-axes">
+            <label>
+              <span><b>Активные слои</b><output id="axisLayersOut">2</output></span>
+              <input id="axisLayers" type="range" min="1" max="4" step="1" value="2" />
+            </label>
+            <label>
+              <span><b>Независимость времени</b><output id="axisIndependenceOut">18%</output></span>
+              <input id="axisIndependence" type="range" min="0" max="100" value="18" />
+            </label>
+            <label>
+              <span><b>Связи между голосами</b><output id="axisConnectionsOut">22%</output></span>
+              <input id="axisConnections" type="range" min="0" max="100" value="22" />
+            </label>
+            <label>
+              <span><b>Глубина памяти</b><output id="axisMemoryOut">48%</output></span>
+              <input id="axisMemory" type="range" min="0" max="100" value="48" />
+            </label>
+          </div>
+          <p class="structure-description" id="structureDescription">
+            Пульс и След делят один цикл. Усложнение добавляет отношения,
+            а не просто события.
+          </p>
+        </section>
+
+        <div class="anatomy-columns lower-columns">
+          <section class="anatomy-section event-section" aria-labelledby="eventTitle">
+            <div class="anatomy-heading">
+              <span>05</span>
+              <div>
+                <p class="eyebrow">выбранный узел</p>
+                <h2 id="eventTitle">След события</h2>
+              </div>
+            </div>
+            <div id="eventInspector" class="event-inspector"></div>
+          </section>
+
+          <section class="anatomy-section voices-section" aria-labelledby="voicesTitle">
+            <div class="anatomy-heading">
+              <span>06</span>
+              <div>
+                <p class="eyebrow">четыре тела</p>
+                <h2 id="voicesTitle">Голоса</h2>
+              </div>
+            </div>
+            <div id="voiceControls" class="voice-controls"></div>
+          </section>
+        </div>
+
+        <section class="anatomy-section space-section" aria-labelledby="spaceTitle">
+          <div class="anatomy-heading">
+            <span>07</span>
+            <div>
+              <p class="eyebrow">общая среда</p>
+              <h2 id="spaceTitle">Пространство и мастер</h2>
+            </div>
+          </div>
+          <div class="space-controls">
+            <label>
+              <span><b>Feedback delay</b><output id="fxFeedbackOut">26%</output></span>
+              <input id="fxFeedback" type="range" min="0" max="70" value="26" />
+            </label>
+            <label>
+              <span><b>Глубина delay</b><output id="fxDelayWetOut">12%</output></span>
+              <input id="fxDelayWet" type="range" min="0" max="50" value="12" />
+            </label>
+            <label>
+              <span><b>Глубина reverb</b><output id="fxReverbWetOut">9%</output></span>
+              <input id="fxReverbWet" type="range" min="0" max="45" value="9" />
+            </label>
+            <label>
+              <span><b>Насыщение</b><output id="fxDriveOut">41%</output></span>
+              <input id="fxDrive" type="range" min="0" max="100" value="41" />
+            </label>
+          </div>
+          <div class="signal-chain" aria-label="Цепь прохождения сигнала">
+            <span>голоса</span><i>→</i><span>delay / reverb</span><i>→</i>
+            <span>tanh saturation</span><i>→</i><span>compressor</span><i>→</i><span>выход</span>
+          </div>
+        </section>
+
+        <details class="diagnostics">
+          <summary>DSP / диагностика</summary>
+          <div id="diagnosticsBody"></div>
+        </details>
+      </section>
+
+      <section class="transport" aria-label="Управление воспроизведением">
+        <button class="play-button" id="playToggle" type="button">
+          <span class="play-icon" aria-hidden="true"></span>
+          <span id="playLabel">Играть</span>
+        </button>
+
+        <div class="transport-control bpm-control">
+          <label for="bpm">темп</label>
+          <output id="bpmOut">96</output>
+          <input id="bpm" type="range" min="60" max="160" value="96" />
+          <span class="unit">bpm</span>
+        </div>
+
+        <div class="transport-control">
+          <label for="swing">качание</label>
+          <output id="swingOut">12%</output>
+          <input id="swing" type="range" min="0" max="45" value="12" />
+        </div>
+
+        <div class="transport-control">
+          <label for="master">громкость</label>
+          <output id="masterOut">72%</output>
+          <input id="master" type="range" min="0" max="100" value="72" />
+        </div>
+
+        <button class="meeting-button" id="newMeeting" type="button">
+          Новая встреча
+          <span aria-hidden="true">↗</span>
+        </button>
+      </section>
+    </main>
+
+    <div class="wake-layer" id="wakeLayer" role="dialog" aria-modal="true" aria-labelledby="wakeTitle">
+      <div class="wake-card">
+        <div class="wake-glyph" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </div>
+        <p class="eyebrow">коллективный синтезатор</p>
+        <h2 id="wakeTitle">Звук возникает<br />только после вашего жеста</h2>
+        <p>
+          Внутри уже есть память четырёх участников. Разбудите инструмент — он
+          начнёт с их общего рисунка.
+        </p>
+        <button class="wake-button" id="wakeButton" type="button">
+          <span>Разбудить инструмент</span>
+          <i aria-hidden="true">→</i>
+        </button>
+        <button class="wake-secondary-button" id="exploreSilent" type="button">
+          Изучить анатомию без звука
+        </button>
+        <small>Наденьте наушники · громкость начнётся мягко</small>
+      </div>
+    </div>
+
+    <div class="sr-only" id="announcer" aria-live="assertive"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
